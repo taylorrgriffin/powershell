@@ -1,5 +1,5 @@
 $mailboxToExport = "Taylor.Testing@oregonstate.edu"
-$destinationMailbox = "reinscha-test@oregonstate.edu"
+$destinationMailbox = "reinscha-test@oregonstate.edu" 
 
 function SelectMailboxFolder ($emailaddress) {
     ((Get-MailboxFolderStatistics $emailaddress).identity |Out-GridView -OutputMode Single -Title "Select Folder to export").tostring()
@@ -16,11 +16,11 @@ function mailboxExists([string]$mailbox) {
 }
 
 function startExport([string]$mailboxToExport,$tempPST,$sourceFolder) {
-    New-MailboxExportRequest -Name $mailboxToExport -Mailbox $mailboxToExport -FilePath $tempPST -SourceRootFolder $sourceFolder -ExcludeDumpster -WhatIf 
+    New-MailboxExportRequest -Name $mailboxToExport -Mailbox $mailboxToExport -FilePath $tempPST -SourceRootFolder $sourceFolder -ExcludeDumpster
 }
 
 function startImport([string]$destinationMailbox,$tempPST) {
-    New-MailboxImportRequest -Name $destinatonMailbox -Mailbox $destinationMailbox -TargetRootFolder "Calendar" -FilePath $tempPST -ExcludeDumpster -WhatIf
+    New-MailboxImportRequest -Name $destinationMailbox -Mailbox $destinationMailbox -TargetRootFolder "Calendar" -FilePath $tempPST -ExcludeDumpster
 }
 
 function waitExport([string]$mailboxToExport) {
@@ -52,25 +52,26 @@ function waitImport([string]$destinationMailbox) {
             }
         }
     }
-    until($exportFinished -eq $true)
+    until($importFinished -eq $true)
     "Import is finished."
     # check that all content was imported
 }
 
 function export_import() {
     if (mailboxExists($mailboxToExport)) {
-        "Mailbox exists, proceeding with the import."
+        "Mailbox exists, proceeding with the export."
         $folderToExport = SelectMailboxfolder -emailaddress $mailboxToExport
         if ($folderToExport -eq $null) {
             "Oops! Looks like there's no folders in this mailbox."
         }
         else {
-            $sourceFolder = $folderToExportc.Replace($mailboxToExport+"\","")
+            $sourceFolder = $folderToExport.Replace($mailboxToExport+"\","")
             if (-Not($sourceFolder -Match "Calendar")) {
                 "Oops! You must select a subfolder of Calendar or the root Calendar folder itself to import from."
             }
             else {
-                $tempPST = $mailboxToExport+".PST"
+                # REMEMBER TO CHANGE THIS LATER OKKKKK
+                $tempPST = "\\iscs-export\Export\griftayl"+$mailboxToExport.toString()+".PST"
                 "Starting export..."
                 startExport $mailboxToExport $tempPST $sourceFolder
                 waitExport $mailboxToExport
