@@ -28,6 +28,11 @@ function startImport([string]$destinationMailbox,$tempPST) {
     New-MailboxImportRequest -Name $destinationMailbox -Mailbox $destinationMailbox -TargetRootFolder "Calendar" -FilePath $tempPST -ExcludeDumpster
 }
 
+# begins the import (w/ source folder arg for just_import)
+function startImportAlt([string]$destinationMailbox,$PST,$sourceFolder) {
+    New-MailboxImportRequest -Name $destinationMailbox -Mailbox $destinationMailbox -TargetRootFolder "Calendar" -FilePath $PST -Include -ExcludeDumpster
+}
+
 # blocks until the export is complete
 function waitExport([string]$mailboxToExport) {
     do {
@@ -94,12 +99,23 @@ function export_import() {
     }
 }
 
-# does an import of an existing pst (for when the destination mailbox no longer exists, but has been previously exported)
+# does an import of an existing pst (for when the source mailbox no longer exists, but has been previously exported)
 function just_import() {
-
+    $PST = Read-Host "Enter filepath of PST to import from"
+    # I should probably do some error checking here to make sure the pst path is valid- I'll do it later
+    "PST filepath is valid, proceeding with import."
+    $sourceFolder = Read-Host "Enter folder within Calendar to import from (leave blank for root Calendar)"
+    if ($sourceFolder -eq $null) {
+        $sourceFolder = "Calendar"
+    }
+    else {
+        $sourceFolder = "Calendar/"+$sourceFolder
+    }
+    "Starting import..."
+    startImportAlt $destinationMailbox $sourcePST $sourceFolder
+    waitImport $destinationMailbox
 }
 
 # un-comment these to run them
-
 #export_import
 #just_import
