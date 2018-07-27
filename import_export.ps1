@@ -1,10 +1,13 @@
+# hard coded for now 
 $mailboxToExport = "Taylor.Testing@oregonstate.edu"
 $destinationMailbox = "reinscha-test@oregonstate.edu" 
 
+# opens up the gui and allows user to select a folder to export
 function SelectMailboxFolder ($emailaddress) {
     ((Get-MailboxFolderStatistics $emailaddress).identity |Out-GridView -OutputMode Single -Title "Select Folder to export").tostring()
 }
 
+# checks if a mailbox exists, returns true if exists, else false
 function mailboxExists([string]$mailbox) {
     $checkMailbox = (Get-Mailbox $mailbox -erroraction SilentlyContinue);
     if ($checkMailbox -eq $null) {
@@ -15,14 +18,17 @@ function mailboxExists([string]$mailbox) {
     }
 }
 
+# begins the export
 function startExport([string]$mailboxToExport,$tempPST,$sourceFolder) {
     New-MailboxExportRequest -Name $mailboxToExport -Mailbox $mailboxToExport -FilePath $tempPST -SourceRootFolder $sourceFolder -ExcludeDumpster
 }
 
+# begins the import
 function startImport([string]$destinationMailbox,$tempPST) {
     New-MailboxImportRequest -Name $destinationMailbox -Mailbox $destinationMailbox -TargetRootFolder "Calendar" -FilePath $tempPST -ExcludeDumpster
 }
 
+# blocks until the export is complete
 function waitExport([string]$mailboxToExport) {
     do {
         $checkExport = (Get-MailboxExportRequest | where-object {$_.Name -like $mailboxToExport.toString()}).status
@@ -37,9 +43,10 @@ function waitExport([string]$mailboxToExport) {
     }
     until($exportFinished -eq $true)
     "Export is finished."
-    # check that all content was exported
+    # check that all content was exported - I'll do this later if I have time
 }
 
+# blocks until import is complete
 function waitImport([string]$destinationMailbox) {
     do {
         $checkImport = (Get-MailboxImportRequest | where-object {$_.Name -like $destinationMailbox.toString()}).status
@@ -54,9 +61,10 @@ function waitImport([string]$destinationMailbox) {
     }
     until($importFinished -eq $true)
     "Import is finished."
-    # check that all content was imported
+    # check that all content was imported - I'll do this later if I have time
 }
 
+# preforms an export of a selected mailbox and imports it into the newly created room calendar
 function export_import() {
     if (mailboxExists($mailboxToExport)) {
         "Mailbox exists, proceeding with the export."
@@ -82,8 +90,16 @@ function export_import() {
         }
     }
     else {
-        "Mailbox doesn't exist, cancelling import."
+        "Mailbox doesn't exist, cancelling export."
     }
 }
 
-export_import
+# does an import of an existing pst (for when the destination mailbox no longer exists, but has been previously exported)
+function just_import() {
+
+}
+
+# un-comment these to run them
+
+#export_import
+#just_import
