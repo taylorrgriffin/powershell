@@ -81,7 +81,7 @@ function export_import() {
             # replace backslashes with forwardslashses
             $folderToExport = $folderToExport.Replace("\","/")
             # add mailbox name and fix backslashes
-            $sourceFolder = $folderToExport.Replace($mailboxToExport+"\","")
+            $sourceFolder = $folderToExport.Replace($mailboxToExport+"/","")
             if (-Not($sourceFolder -Match "Calendar")) {
                 "Oops! You must select a subfolder of Calendar or the root Calendar folder itself to import from."
             }
