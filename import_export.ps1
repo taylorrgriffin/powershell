@@ -87,7 +87,7 @@ function export_import() {
             }
             else {
                 # might wanna change this later
-                $tempPST = "\\iscs-export\Export\griftayl"+$mailboxToExport.toString()+".PST"
+                $tempPST = "\\iscs-export\Export\griftayl\"+$mailboxToExport.toString()+".PST"
                 "Starting export..."
                 startExport $mailboxToExport $tempPST $sourceFolder
                 waitExport $mailboxToExport
