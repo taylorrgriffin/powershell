@@ -1,6 +1,6 @@
-# hard coded for now 
+# hard coded for now
 $mailboxToExport = "Taylor.Testing@oregonstate.edu"
-$destinationMailbox = "reinscha-test@oregonstate.edu" 
+$destinationMailbox = "reinscha-test@oregonstate.edu"
 
 # opens up the gui and allows user to select a folder to export
 function SelectMailboxFolder ($emailaddress) {
@@ -79,11 +79,12 @@ function export_import() {
         }
         else {
             $sourceFolder = $folderToExport.Replace($mailboxToExport+"\","")
+            "Source folder is: "$sourceFolder
             if (-Not($sourceFolder -Match "Calendar")) {
                 "Oops! You must select a subfolder of Calendar or the root Calendar folder itself to import from."
             }
             else {
-                # REMEMBER TO CHANGE THIS LATER OKKKKK
+                # might wanna change this later
                 $tempPST = "\\iscs-export\Export\griftayl"+$mailboxToExport.toString()+".PST"
                 "Starting export..."
                 startExport $mailboxToExport $tempPST $sourceFolder
