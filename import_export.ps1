@@ -7,6 +7,30 @@ function CalendarExport
         $TargetMailbox
     )
 
+    #cleans up old exports
+    function CleanExports ($name) {
+        $export = (Get-MailboxExportRequest | Where-Object {$_.name -like "$name"})
+        if ($export -eq $null) {
+            #no export found
+        }
+        else {
+            "Deleting existing export request."
+            Get-MailboxExportRequest | Where-Object {$_.name -like "$name"} | Remove-MailboxExportRequest
+        }
+    }
+
+    #cleans up old imports
+    function CleanImports ($name) {
+        $import = (Get-MailboxImportRequest | Where-Object {$_.name -like "$name"})
+        if ($import -eq $null) {
+            #no export found
+        }
+        else {
+            "Deleting existing import request."
+            Get-MailboxImportRequest | Where-Object {$_.name -like "$name"} | Remove-MailboxImportRequest
+        }
+    }
+
     # opens up the gui and allows user to select a folder to export
     function SelectMailboxFolder ($emailaddress) {
         ((Get-MailboxFolderStatistics $emailaddress).identity |Out-GridView -OutputMode Single -Title "Select Folder to export").tostring()
@@ -25,11 +49,13 @@ function CalendarExport
 
     # begins the export
     function startExport([string]$mailboxToExport,$tempPST,$sourceFolder) {
+        CleanExports $mailboxToExport
         New-MailboxExportRequest -Name $mailboxToExport -Mailbox $mailboxToExport -FilePath $tempPST -SourceRootFolder $sourceFolder -ExcludeDumpster
     }
 
     # begins the import
     function startImport([string]$destinationMailbox,$tempPST) {
+        CleanImports $destinationMailbox
         New-MailboxImportRequest -Name $destinationMailbox -Mailbox $destinationMailbox -TargetRootFolder "Calendar" -FilePath $tempPST -ExcludeDumpster
     }
 
@@ -99,6 +125,9 @@ function CalendarExport
                     "Starting import..."
                     startImport $destinationMailbox $tempPST
                     waitImport $destinationMailbox
+                    "Cleaning requests"
+                    CleanExports $mailboxToExport
+                    CleanImports $destinationMailbox
                 }
             }
         }
@@ -122,6 +151,8 @@ function CalendarExport
         "Starting import..."
         startImportAlt $destinationMailbox $sourcePST $sourceFolder
         waitImport $destinationMailbox
+        "Cleaning import request"
+        CleanImports $destinationMailbox
     }
 
     switch ($PSBoundParameters.Values)
