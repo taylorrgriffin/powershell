@@ -1,2 +1,2 @@
 # powershell
-for powershell scripts n stuff
+powershell scripts for AD / Exchange stuff
